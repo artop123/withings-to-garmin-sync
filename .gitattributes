@@ -1,0 +1,14 @@
+###############################################################################
+# Set default behavior to automatically normalize line endings.
+###############################################################################
+* text=auto
+
+*.cs    text eol=crlf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.md    text eol=lf
+
+*.png   binary
+*.jpg   binary
+*.zip   binary
+*.exe   binary
