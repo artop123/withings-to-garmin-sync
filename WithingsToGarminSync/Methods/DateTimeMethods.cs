@@ -4,8 +4,7 @@
 	{
 		public static DateTime UnixTimeStampToDateTime(long unixTimeStamp)
 		{
-			// Unix timestamp to DateTime conversion
-			DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp);
+			var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp);
 			return dateTimeOffset.LocalDateTime;
 		}
 	}
