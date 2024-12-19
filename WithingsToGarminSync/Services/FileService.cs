@@ -1,10 +1,18 @@
 ﻿using System.Text.Json;
+using WithingsToGarminSync.Interfaces;
 using WithingsToGarminSync.Models.General;
 
 namespace WithingsToGarminSync.Services
 {
 	public class FileService
 	{
+		private readonly ILogService _logService;
+
+		public FileService(ILogService logService)
+		{
+			_logService = logService;
+		}
+
 		public void SaveRunData(string path, MeasurementData? data = null, TokenInfo? newToken = null)
 		{
 			var model = new RunData()
@@ -25,12 +33,19 @@ namespace WithingsToGarminSync.Services
 
 			var json = JsonSerializer.Serialize(model);
 			File.WriteAllText(path, json);
+
+			_logService?.Log($"File {path} saved");
 		}
 
 		public T? Load<T>(string? path = null)
 		{
 			if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+			{
+				_logService?.Error($"File {path} not found");
 				return default;
+			}
+
+			_logService?.Log($"Loading {typeof(T)} from {path}");
 
 			var json = File.ReadAllText(path);
 			return JsonSerializer.Deserialize<T>(json);

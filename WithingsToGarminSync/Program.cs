@@ -1,28 +1,24 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Serilog;
 using WithingsToGarminSync;
 using WithingsToGarminSync.Models.General;
-
-AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
-{
-	var exception = eventArgs.ExceptionObject as Exception;
-
-	if (exception != null && !string.IsNullOrWhiteSpace(exception.Message))
-	{
-		Log.Error(exception.Message);
-	}
-};
+using WithingsToGarminSync.Services;
 
 var configuration = new ConfigurationBuilder()
 	.AddJsonFile("appsettings.json", optional: false)
 	.Build();
 
-Log.Logger = new LoggerConfiguration()
-	.ReadFrom.Configuration(configuration)
-	.CreateLogger();
-
+var logger = new SerilogService(configuration);
 var settings = configuration.Get<Settings>();
 
-await new Application()
+AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+{
+	if (eventArgs.ExceptionObject is Exception exception
+		&& !string.IsNullOrWhiteSpace(exception.Message))
+	{
+		logger.Log(exception);
+	}
+};
+
+await new Application(logger)
 	.Start(settings)
 	.Run();

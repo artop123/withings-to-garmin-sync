@@ -1,0 +1,82 @@
+﻿name: .NET Publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        tags: true
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Lint the code
+      run: dotnet format --verify-no-changes
+
+    - name: Determine version
+      id: version
+      run: |
+        VERSION=$(git describe --tags --abbrev=0)
+        VERSION=${VERSION/v/}
+        IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
+        PATCH=$((VERSION_PARTS[2] + 1))
+        echo "::set-output name=version::${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build the project
+      run: |
+        cp WithingsToGarminSync/appsettings.stub.json WithingsToGarminSync/appsettings.json
+        dotnet build --configuration Release
+
+    - name: Run tests
+      run: dotnet test
+      
+    - name: Publish the project
+      run: dotnet publish WithingsToGarminSync/WithingsToGarminSync.csproj -p:PublishProfile=Release /p:Version=${{ steps.version.outputs.version }}
+      
+    - name: Remove PDB files
+      run: find ./WithingsToGarminSync/publish -name "*.pdb" -type f -delete
+
+    - name: Compress the publish directory
+      run: cd WithingsToGarminSync/publish && zip -r WithingsToGarminSync.zip *
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: WithingsToGarminSync
+        path: ./WithingsToGarminSync/publish/WithingsToGarminSync.zip
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.version }}
+        release_name: Release v${{ steps.version.outputs.version }}
+        body: "${{ github.event.head_commit.message }}"
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./WithingsToGarminSync/publish/WithingsToGarminSync.zip
+        asset_name: WithingsToGarminSync.zip
+        asset_content_type: application/zip

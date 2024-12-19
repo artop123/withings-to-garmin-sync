@@ -1,5 +1,5 @@
 ﻿using RestSharp;
-using Serilog;
+using WithingsToGarminSync.Interfaces;
 using WithingsToGarminSync.Methods;
 using WithingsToGarminSync.Models.General;
 using WithingsToGarminSync.Models.Withings;
@@ -8,12 +8,18 @@ namespace WithingsToGarminSync.Services
 {
 	public class WithingsService
 	{
+		private readonly ILogService _logService;
 		private const string BaseUrl = "https://wbsapi.withings.net/v2/";
 		private const string MeasureUrl = "https://wbsapi.withings.net/measure";
 		private const string AuthUrl = "https://account.withings.com/oauth2_user/authorize2";
 		string clientId;
 		string clientSecret;
 		string redirectUri;
+
+		public WithingsService(ILogService logService)
+		{
+			_logService = logService;
+		}
 
 		public WithingsService SetClientId(string value)
 		{
@@ -86,7 +92,7 @@ namespace WithingsToGarminSync.Services
 
 			if (!response.IsSuccessful || response.Data == null || response.Data.Status != 0)
 			{
-				Log.Error($"Unable to load data from Withings: {response.Content}");
+				_logService?.Error($"Unable to load data from Withings: {response.Content}");
 				return null;
 			}
 
@@ -104,27 +110,28 @@ namespace WithingsToGarminSync.Services
 
 			foreach (var measure in latest.Measures)
 			{
+				// https://developer.withings.com/api-reference/#tag/measure/operation/measure-getmeas
 				switch (measure.Type)
 				{
-					case 1: // Paino
+					case 1:
 						result.Weight = measure.Value * Math.Pow(10, measure.Unit);
 						break;
-					case 5: // Fat Free Mass (kg)
+					case 5:
 						result.FatFreeMass = measure.Value * Math.Pow(10, measure.Unit);
 						break;
-					case 6: // Rasvaprosentti
+					case 6:
 						result.FatPercent = measure.Value * Math.Pow(10, measure.Unit);
 						break;
-					case 8: // Fat Mass Weight (kg)
+					case 8:
 						result.FatMassWeight = measure.Value * Math.Pow(10, measure.Unit);
 						break;
-					case 76: // Muscle Mass (kg)
+					case 76:
 						result.MuscleMass = measure.Value * Math.Pow(10, measure.Unit);
 						break;
-					case 77: // Hydration  (kg)
+					case 77:
 						result.Hydration = measure.Value * Math.Pow(10, measure.Unit);
 						break;
-					case 88: // Bone Mass  (kg)
+					case 88:
 						result.BoneMass = measure.Value * Math.Pow(10, measure.Unit);
 						break;
 					default:
