@@ -27,7 +27,7 @@ jobs:
     - name: Determine version
       id: version
       run: |
-        VERSION=$(git describe --tags --abbrev=0)
+        VERSION=$(git tag --sort=-v:refname | head -n 1)
         VERSION=${VERSION/v/}
         IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
         PATCH=$((VERSION_PARTS[2] + 1))
