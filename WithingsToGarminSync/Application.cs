@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using WithingsToGarminSync.Interfaces;
 using WithingsToGarminSync.Models.General;
 using WithingsToGarminSync.Services;
 
@@ -7,6 +7,7 @@ namespace WithingsToGarminSync
 	public class Application
 	{
 		private readonly string _dataJsonFile = "data.json";
+		private readonly ILogService _logService;
 
 		FileService? _fileService;
 		Settings? _settings;
@@ -14,13 +15,18 @@ namespace WithingsToGarminSync
 		WithingsService? _withingsService;
 		GarminService? _garminService;
 
+		public Application(ILogService logService)
+		{
+			_logService = logService;
+		}
+
 		public Application Start(Settings settings)
 		{
 			_settings = settings;
-			_fileService = new FileService();
+			_fileService = new FileService(_logService);
 			_runData = _fileService.Load<RunData>(_dataJsonFile);
 
-			_withingsService = new WithingsService()
+			_withingsService = new WithingsService(_logService)
 				.SetClientId(_settings.Withings.ClientId)
 				.SetClientSecret(_settings.Withings.ClientSecret)
 				.SetRedirectUrl(_settings.Withings.RedirectUrl);
@@ -41,16 +47,16 @@ namespace WithingsToGarminSync
 
 			if (_runData?.Token != null)
 			{
-				Log.Information("Using old Withings token");
+				_logService?.Log("Using old Withings token");
 				return _runData.Token;
 			}
 
-			Log.Information("Withings token not found, requesting access from the user..");
+			_logService?.Log("Withings token not found, requesting access from the user..");
 
 			var code = _withingsService.GetAccessCode();
 			var token = _withingsService.GetAccessToken(code);
 
-			Log.Information("Token received..");
+			_logService?.Log("Token received..");
 
 			return new TokenInfo()
 			{
@@ -75,17 +81,23 @@ namespace WithingsToGarminSync
 
 			var newToken = _withingsService.GetAccessTokenByRefreshToken(withingsToken.RefreshToken);
 			var data = _withingsService.FetchWeightAndFatData(newToken.Access_token);
+
+			if (data == null)
+			{
+				throw new Exception("Invalid data from Withings");
+			}
+
 			var shouldUpdate = _runData == null
 				|| _runData.LastWeightDate == null
 				|| _runData.LastWeightDate < data.Date;
 
-			Log.Information($"Loaded weight from Withings ({data.Weight:0.00} kg, {data.Date})");
-			Log.Information($"Updating data to Garmin: {shouldUpdate}");
+			_logService?.Log($"Loaded weight from Withings ({data.Weight:0.00} kg, {data.Date})");
+			_logService?.Log($"Updating data to Garmin: {shouldUpdate}");
 
 			if (shouldUpdate)
 			{
 				await _garminService.UploadWeight(data.Weight);
-				Log.Information("Weight uploaded to Garmin");
+				_logService?.Log("Weight uploaded to Garmin");
 			}
 
 			_fileService.SaveRunData(_dataJsonFile, data, withingsToken);
