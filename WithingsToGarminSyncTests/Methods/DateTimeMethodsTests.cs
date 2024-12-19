@@ -10,13 +10,14 @@ namespace WithingsToGarminSync.Methods.Tests
 		{
 			// Arrange
 			long unixTimeStamp = 1672531200; // 1. tammikuuta 2023, 00:00:00 UTC
-			var expectedDateTime = new DateTime(2023, 1, 1, 2, 0, 0, DateTimeKind.Local); // Oletetaan UTC+2 aikavyöhyke
+			var expectedDateTime = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 			// Act
 			var result = DateTimeMethods.UnixTimeStampToDateTime(unixTimeStamp);
+			var resultAsUtc = result.ToUniversalTime();
 
 			// Assert
-			result.Should().Be(expectedDateTime);
+			resultAsUtc.Should().Be(expectedDateTime);
 		}
 	}
 }
