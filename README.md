@@ -42,7 +42,7 @@ dotnet build
 dotnet test
 ```
 
-Publish the application as a single executable:
+Publish the application (linux example):
 
 ```bash
 dotnet publish \
@@ -66,6 +66,13 @@ Run the application
 ```bash
 ./WithingsToGarminSync
 ```
+
+## Running the Software (Windows)
+
+1. You need to have the [.NET 8 runtime](https://dotnet.microsoft.com/download/dotnet/8.0) installed
+2. [Download the latest release](https://github.com/artop123/withings-to-garmin-sync/releases/latest)
+3. Edit the appsettings.json
+4. Run the application
 
 ## Scheduling the Software
 
