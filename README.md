@@ -29,9 +29,9 @@ Visit the [Withings Developer Portal](https://developer.withings.com/) and log i
 
 After completing these steps, your Withings application is ready, and you can use it to fetch weight data with this software.
 
-## Running the Software
+## Building the Software
 
-Clone the repository and build the application:
+[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) is required to build the project. 
 
 ```bash
 git clone https://github.com/artop123/withings-to-garmin-sync.git

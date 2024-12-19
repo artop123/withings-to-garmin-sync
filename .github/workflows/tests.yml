@@ -28,7 +28,7 @@ jobs:
     - name: Build the project
       run: |
         cp WithingsToGarminSync/appsettings.stub.json WithingsToGarminSync/appsettings.json
-        dotnet build --configuration Release
+        dotnet build
 
     - name: Run tests
       run: dotnet test
