@@ -1,5 +1,6 @@
 ﻿using WithingsToGarminSync.Interfaces;
 using WithingsToGarminSync.Models.General;
+using WithingsToGarminSync.Models.Withings;
 using WithingsToGarminSync.Services;
 
 namespace WithingsToGarminSync
@@ -38,7 +39,7 @@ namespace WithingsToGarminSync
 			return this;
 		}
 
-		private TokenInfo GetWithingsToken()
+		private WithingsAccessTokenBody GetWithingsToken()
 		{
 			if (_settings == null || _withingsService == null)
 			{
@@ -58,13 +59,7 @@ namespace WithingsToGarminSync
 
 			_logService?.Log("Token received..");
 
-			return new TokenInfo()
-			{
-				AccessToken = token.Access_token,
-				AcquiredAt = DateTime.Now,
-				ExpiresIn = token.Expires_in,
-				RefreshToken = token.Refresh_token
-			};
+			return token;
 		}
 
 		public async Task Run()
@@ -77,10 +72,10 @@ namespace WithingsToGarminSync
 				throw new Exception("Services not found, forgot to Start()?");
 			}
 
-			var withingsToken = GetWithingsToken();
+			var token = GetWithingsToken();
+			token = _withingsService.GetAccessTokenByRefreshToken(token.Refresh_token);
 
-			var newToken = _withingsService.GetAccessTokenByRefreshToken(withingsToken.RefreshToken);
-			var data = _withingsService.FetchWeightAndFatData(newToken.Access_token);
+			var data = _withingsService.FetchWeightAndFatData(token.Access_token);
 
 			if (data == null)
 			{
@@ -100,7 +95,7 @@ namespace WithingsToGarminSync
 				_logService?.Log("Weight uploaded to Garmin");
 			}
 
-			_fileService.SaveRunData(_dataJsonFile, data, withingsToken);
+			_fileService.SaveRunData(_dataJsonFile, data, token);
 		}
 	}
 }
