@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using WithingsToGarminSync.Interfaces;
 using WithingsToGarminSync.Models.General;
+using WithingsToGarminSync.Models.Withings;
 
 namespace WithingsToGarminSync.Services
 {
@@ -13,7 +14,7 @@ namespace WithingsToGarminSync.Services
 			_logService = logService;
 		}
 
-		public void SaveRunData(string path, MeasurementData? data = null, TokenInfo? newToken = null)
+		public void SaveRunData(string path, MeasurementData? data = null, WithingsAccessTokenBody? newToken = null)
 		{
 			var model = new RunData()
 			{
