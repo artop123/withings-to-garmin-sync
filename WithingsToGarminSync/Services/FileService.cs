@@ -48,7 +48,8 @@ namespace WithingsToGarminSync.Services
 
 			_logService?.Log($"Loading {typeof(T)} from {path}");
 
-			try {
+			try
+			{
 				var json = File.ReadAllText(path);
 				return JsonSerializer.Deserialize<T>(json);
 			}
