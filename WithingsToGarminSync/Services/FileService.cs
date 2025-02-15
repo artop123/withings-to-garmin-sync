@@ -48,8 +48,17 @@ namespace WithingsToGarminSync.Services
 
 			_logService?.Log($"Loading {typeof(T)} from {path}");
 
-			var json = File.ReadAllText(path);
-			return JsonSerializer.Deserialize<T>(json);
+			try
+			{
+				var json = File.ReadAllText(path);
+				return JsonSerializer.Deserialize<T>(json);
+			}
+
+			catch (Exception ex)
+			{
+				_logService?.Log($"Failed to load the file: {ex.Message}");
+				return default;
+			}
 		}
 	}
 }

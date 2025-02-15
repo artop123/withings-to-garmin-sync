@@ -21,8 +21,12 @@ namespace WithingsToGarminSync
 			_logService = logService;
 		}
 
-		public Application Start(Settings settings)
+		public Application Start(Settings? settings)
 		{
+			ArgumentNullException.ThrowIfNull(settings);
+			ArgumentNullException.ThrowIfNull(settings.Garmin);
+			ArgumentNullException.ThrowIfNull(settings.Withings);
+
 			_settings = settings;
 			_fileService = new FileService(_logService);
 			_runData = _fileService.Load<RunData>(_dataJsonFile);
@@ -39,7 +43,7 @@ namespace WithingsToGarminSync
 			return this;
 		}
 
-		private WithingsAccessTokenBody GetWithingsToken()
+		private WithingsAccessTokenBody? GetWithingsToken()
 		{
 			if (_settings == null || _withingsService == null)
 			{
@@ -73,9 +77,9 @@ namespace WithingsToGarminSync
 			}
 
 			var token = GetWithingsToken();
-			token = _withingsService.GetAccessTokenByRefreshToken(token.Refresh_token);
+			token = _withingsService.GetAccessTokenByRefreshToken(token?.Refresh_token);
 
-			var data = _withingsService.FetchWeightAndFatData(token.Access_token);
+			var data = _withingsService.FetchWeightAndFatData(token?.Access_token);
 
 			if (data == null)
 			{

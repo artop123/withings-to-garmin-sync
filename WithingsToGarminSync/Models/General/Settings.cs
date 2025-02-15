@@ -2,7 +2,7 @@
 {
 	public class Settings
 	{
-		public WithingsSettings Withings { get; set; }
-		public GarminSettings Garmin { get; set; }
+		public WithingsSettings? Withings { get; set; }
+		public GarminSettings? Garmin { get; set; }
 	}
 }

@@ -12,9 +12,9 @@ namespace WithingsToGarminSync.Services
 		private const string BaseUrl = "https://wbsapi.withings.net/v2/";
 		private const string MeasureUrl = "https://wbsapi.withings.net/measure";
 		private const string AuthUrl = "https://account.withings.com/oauth2_user/authorize2";
-		string clientId;
-		string clientSecret;
-		string redirectUri;
+		string clientId = "";
+		string clientSecret = "";
+		string redirectUri = "";
 
 		public WithingsService(ILogService logService)
 		{
@@ -46,10 +46,10 @@ namespace WithingsToGarminSync.Services
 			Console.Write("Enter the 'code' parameter from the redirect URL: ");
 			var code = Console.ReadLine();
 
-			return code;
+			return code ?? "";
 		}
 
-		public WithingsAccessTokenBody GetAccessToken(string authCode)
+		public WithingsAccessTokenBody? GetAccessToken(string authCode)
 		{
 			var client = new RestClient(BaseUrl);
 			var request = new RestRequest("oauth2", Method.Post);
@@ -62,11 +62,14 @@ namespace WithingsToGarminSync.Services
 
 			var response = client.Execute<WithingsAccessTokenResponse>(request);
 
-			return response.Data.Body;
+			return response.Data?.Body;
 		}
 
-		public WithingsAccessTokenBody GetAccessTokenByRefreshToken(string refreshToken)
+		public WithingsAccessTokenBody? GetAccessTokenByRefreshToken(string? refreshToken)
 		{
+			if (string.IsNullOrWhiteSpace(refreshToken))
+				return null;
+
 			var client = new RestClient(BaseUrl);
 			var request = new RestRequest("oauth2", Method.Post);
 			request.AddParameter("action", "requesttoken");
@@ -78,10 +81,10 @@ namespace WithingsToGarminSync.Services
 
 			var response = client.Execute<WithingsAccessTokenResponse>(request);
 
-			return response.Data.Body;
+			return response.Data?.Body;
 		}
 
-		public MeasurementData? FetchWeightAndFatData(string accessToken)
+		public MeasurementData? FetchWeightAndFatData(string? accessToken)
 		{
 			var client = new RestClient(MeasureUrl);
 			var request = new RestRequest("v2/measure", Method.Get);
@@ -96,7 +99,7 @@ namespace WithingsToGarminSync.Services
 				return null;
 			}
 
-			var latest = response.Data.Body.Measuregrps
+			var latest = response.Data?.Body?.Measuregrps
 				.OrderByDescending(m => m.Date)
 				.FirstOrDefault();
 

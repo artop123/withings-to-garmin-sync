@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  withings-to-garmin:
+    build: .
+    image: withings-to-garmin
+    container_name: withings-to-garmin
+    restart: unless-stopped
+    volumes:
+      - ./appsettings.json:/app/appsettings.json
+      - ./data.json:/app/data.json
+      - ./logs:/app/logs # optional
+    environment:
+      - CRON_SCHEDULE=0 6-10 * * *  # Run everyday hourly from 6 to 10 am

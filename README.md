@@ -29,7 +29,44 @@ Visit the [Withings Developer Portal](https://developer.withings.com/) and log i
 
 After completing these steps, your Withings application is ready, and you can use it to fetch weight data with this software.
 
-## Building the Software
+## Docker
+
+Create ``docker-compose.yml``:
+
+```yml
+version: "3.8"
+
+services:
+  withings-to-garmin:
+    image: artop/withings-to-garmin
+    container_name: withings-to-garmin
+    restart: unless-stopped
+    volumes:
+      - ./appsettings.json:/app/appsettings.json
+      - ./data.json:/app/data.json
+      - ./logs:/app/logs # optional
+    environment:
+      - CRON_SCHEDULE=0 6-10 * * *  # Run everyday hourly from 6 to 10 am
+```
+
+Create new files. Remember to edit the appsettings.json 
+
+```bash
+touch appsettings.json
+touch data.json
+mkdir logs
+```
+
+Run the container and setup Withings token
+
+```bash
+docker compose up -d
+
+# run once to setup the Withings token
+docker compose exec withings-to-garmin /app/WithingsToGarminSync
+```
+
+## Building yourself
 
 [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) is required to build the project. 
 
