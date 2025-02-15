@@ -45,7 +45,7 @@ services:
       - ./appsettings.json:/app/appsettings.json # required, see the stub file
       - ./data.json:/app/data.json # required, will hold the Withings access token
       - ./withings.json:/app/withings.json # optional, contains parsed data from the Withings API
-      - ./logs:/app/logs # optional, serilog logs files
+      - ./logs:/app/logs # optional, for serilog files
     environment:
       - CRON_SCHEDULE=0 6-10 * * *  # Run everyday hourly from 6 to 10 am
 ```
@@ -71,7 +71,7 @@ docker compose exec withings-to-garmin /app/WithingsToGarminSync
 
 All done, enjoy!
 
-## Building from the source
+## Building From the Source
 
 [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) is required to build the project. 
 
