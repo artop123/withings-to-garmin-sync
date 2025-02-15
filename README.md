@@ -2,9 +2,9 @@
 
 ![Withings to Garmin Header](assets/header.jpg)
 
-The purpose of this project is to sync measurement results from a Withings scale to Garmin. Withings data is fetched using an application registration.
+The purpose of this project is to sync measurement results from a Withings scale to Garmin. Withings data is fetched using an application registration (official API).
 
-Garmin data upload leverages an unofficial API project: https://github.com/sealbro/dotnet.garmin.connect
+Garmin data upload uses an unofficial API project: https://github.com/sealbro/dotnet.garmin.connect
 
 ## Functionality
 
@@ -42,9 +42,10 @@ services:
     container_name: withings-to-garmin
     restart: unless-stopped
     volumes:
-      - ./appsettings.json:/app/appsettings.json
-      - ./data.json:/app/data.json
-      - ./logs:/app/logs # optional
+      - ./appsettings.json:/app/appsettings.json # required, see the stub file
+      - ./data.json:/app/data.json # required, will hold the Withings access token
+      - ./withings.json:/app/withings.json # optional, contains parsed data from the Withings API
+      - ./logs:/app/logs # optional, serilog logs files
     environment:
       - CRON_SCHEDULE=0 6-10 * * *  # Run everyday hourly from 6 to 10 am
 ```
@@ -54,7 +55,8 @@ Create new files. Remember to edit the appsettings.json
 ```bash
 touch appsettings.json
 touch data.json
-mkdir logs
+touch withings.json # optional
+mkdir logs # optional
 ```
 
 Run the container and setup Withings token
@@ -63,10 +65,13 @@ Run the container and setup Withings token
 docker compose up -d
 
 # run once to setup the Withings token
+# this command can also be for manual sync
 docker compose exec withings-to-garmin /app/WithingsToGarminSync
 ```
 
-## Building yourself
+All done, enjoy!
+
+## Building from the source
 
 [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) is required to build the project. 
 

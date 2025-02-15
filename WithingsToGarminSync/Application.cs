@@ -8,6 +8,7 @@ namespace WithingsToGarminSync
 	public class Application
 	{
 		private readonly string _dataJsonFile = "data.json";
+		private readonly string _withingsJsonFile = "withings.json";
 		private readonly ILogService _logService;
 
 		FileService? _fileService;
@@ -86,20 +87,25 @@ namespace WithingsToGarminSync
 				throw new Exception("Invalid data from Withings");
 			}
 
+			var latest = data
+				.OrderByDescending(d => d.Date)
+				.First();
+
 			var shouldUpdate = _runData == null
 				|| _runData.LastWeightDate == null
-				|| _runData.LastWeightDate < data.Date;
+				|| _runData.LastWeightDate < latest.Date;
 
-			_logService?.Log($"Loaded weight from Withings ({data.Weight:0.00} kg, {data.Date})");
+			_logService?.Log($"Loaded weight from Withings ({latest.Weight:0.00} kg, {latest.Date})");
 			_logService?.Log($"Updating data to Garmin: {shouldUpdate}");
 
 			if (shouldUpdate)
 			{
-				await _garminService.UploadWeight(data.Weight);
+				await _garminService.UploadWeight(latest.Weight);
 				_logService?.Log("Weight uploaded to Garmin");
 			}
 
-			_fileService.SaveRunData(_dataJsonFile, data, token);
+			_fileService.Save(_withingsJsonFile, data);
+			_fileService.SaveRunData(_dataJsonFile, latest, token);
 		}
 	}
 }
