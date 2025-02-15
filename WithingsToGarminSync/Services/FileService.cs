@@ -60,5 +60,26 @@ namespace WithingsToGarminSync.Services
 				return default;
 			}
 		}
+
+		public bool Save(string path, object model)
+		{
+			if (string.IsNullOrWhiteSpace(path) || model == null)
+				return false;
+
+			try
+			{
+				var json = JsonSerializer.Serialize(model);
+				File.WriteAllText(path, json);
+
+				_logService?.Log($"File {path} saved");
+				return true;
+			}
+
+			catch (Exception ex)
+			{
+				_logService?.Log($"Failed to load the file: {ex.Message}");
+				return false;
+			}
+		}
 	}
 }

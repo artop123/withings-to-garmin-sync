@@ -84,62 +84,65 @@ namespace WithingsToGarminSync.Services
 			return response.Data?.Body;
 		}
 
-		public MeasurementData? FetchWeightAndFatData(string? accessToken)
+		public List<MeasurementData> FetchWeightAndFatData(string? accessToken)
 		{
 			var client = new RestClient(MeasureUrl);
 			var request = new RestRequest("v2/measure", Method.Get);
+			var result = new List<MeasurementData>();
+
 			request.AddParameter("action", "getmeas");
 			request.AddParameter("access_token", accessToken);
 
 			var response = client.Execute<WithingsMeasurementResponse>(request);
 
-			if (!response.IsSuccessful || response.Data == null || response.Data.Status != 0)
+			if (!response.IsSuccessful
+				|| response.Data == null
+				|| response.Data.Status != 0
+				|| response.Data?.Body?.Measuregrps == null)
 			{
 				_logService?.Error($"Unable to load data from Withings: {response.Content}");
-				return null;
+				return result;
 			}
 
-			var latest = response.Data?.Body?.Measuregrps
-				.OrderByDescending(m => m.Date)
-				.FirstOrDefault();
-
-			if (latest == null)
-				return null;
-
-			var result = new MeasurementData()
+			foreach (var group in response.Data.Body.Measuregrps)
 			{
-				Date = DateTimeMethods.UnixTimeStampToDateTime(latest.Date)
-			};
-
-			foreach (var measure in latest.Measures)
-			{
-				// https://developer.withings.com/api-reference/#tag/measure/operation/measure-getmeas
-				switch (measure.Type)
+				var data = new MeasurementData()
 				{
-					case 1:
-						result.Weight = measure.Value * Math.Pow(10, measure.Unit);
-						break;
-					case 5:
-						result.FatFreeMass = measure.Value * Math.Pow(10, measure.Unit);
-						break;
-					case 6:
-						result.FatPercent = measure.Value * Math.Pow(10, measure.Unit);
-						break;
-					case 8:
-						result.FatMassWeight = measure.Value * Math.Pow(10, measure.Unit);
-						break;
-					case 76:
-						result.MuscleMass = measure.Value * Math.Pow(10, measure.Unit);
-						break;
-					case 77:
-						result.Hydration = measure.Value * Math.Pow(10, measure.Unit);
-						break;
-					case 88:
-						result.BoneMass = measure.Value * Math.Pow(10, measure.Unit);
-						break;
-					default:
-						break;
+					Date = DateTimeMethods.UnixTimeStampToDateTime(group.Date)
+				};
+
+				foreach (var measure in group.Measures)
+				{
+					// https://developer.withings.com/api-reference/#tag/measure/operation/measure-getmeas
+					switch (measure.Type)
+					{
+						case 1:
+							data.Weight = measure.Value * Math.Pow(10, measure.Unit);
+							break;
+						case 5:
+							data.FatFreeMass = measure.Value * Math.Pow(10, measure.Unit);
+							break;
+						case 6:
+							data.FatPercent = measure.Value * Math.Pow(10, measure.Unit);
+							break;
+						case 8:
+							data.FatMassWeight = measure.Value * Math.Pow(10, measure.Unit);
+							break;
+						case 76:
+							data.MuscleMass = measure.Value * Math.Pow(10, measure.Unit);
+							break;
+						case 77:
+							data.Hydration = measure.Value * Math.Pow(10, measure.Unit);
+							break;
+						case 88:
+							data.BoneMass = measure.Value * Math.Pow(10, measure.Unit);
+							break;
+						default:
+							break;
+					}
 				}
+
+				result.Add(data);
 			}
 
 			return result;
