@@ -82,7 +82,7 @@ namespace WithingsToGarminSync
 
 			var data = _withingsService.FetchWeightAndFatData(token?.Access_token);
 
-			if (data == null)
+			if (data == null || data.Count == 0)
 			{
 				throw new Exception("Invalid data from Withings");
 			}
