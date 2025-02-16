@@ -30,7 +30,7 @@ if [ -z "\$CRON_SCHEDULE" ]; then
   CRON_SCHEDULE="0 * * * *"
 fi
 
-echo "\$CRON_SCHEDULE /app/WithingsToGarminSync >> /var/log/cron.log 2>&1" > /etc/cron.d/app-cron
+echo "\$CRON_SCHEDULE cd /app && /app/WithingsToGarminSync >> /var/log/cron.log 2>&1" > /etc/cron.d/app-cron
 
 chmod 0644 /etc/cron.d/app-cron
 crontab /etc/cron.d/app-cron
