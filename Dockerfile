@@ -17,7 +17,9 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y cron libicu-dev && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /app/data/log
 COPY --from=build /publish/WithingsToGarminSync /app/
+COPY --from=build /publish/appsettings.json /app/appsettings.json
 
 # cronjob to run
 COPY <<EOF /app/cronjob.sh
