@@ -46,9 +46,20 @@ services:
       - ./data:/app/data
 ```
 
-Remember to create the .env file, see .env.stub
+Create the ``.env`` file. The default cron schedule runs daily from 6 to 10 AM hourly
 
 ```bash
+cat <<EOF > .env
+WITHINGS__CLIENTID=your_client_id
+WITHINGS__CLIENTSECRET=your_client_secret
+
+GARMIN__USERNAME=your_username
+GARMIN__PASSWORD=your_password
+
+CRON_SCHEDULE="0 6-10 * * *"
+EOF
+
+# edit the settings
 pico .env
 ```
 
