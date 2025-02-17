@@ -41,31 +41,24 @@ services:
     image: artop/withings-to-garmin
     container_name: withings-to-garmin
     restart: unless-stopped
+    env_file: ./.env
     volumes:
-      - ./appsettings.json:/app/appsettings.json # required, see the stub file
-      - ./data.json:/app/data.json # required, will hold the Withings access token
-      - ./withings.json:/app/withings.json # optional, contains parsed data from the Withings API
-      - ./logs:/app/logs # optional, for serilog files
-    environment:
-      - CRON_SCHEDULE=0 6-10 * * *  # Run everyday hourly from 6 to 10 am
+      - ./data:/app/data
 ```
 
-Create new files. Remember to edit the appsettings.json 
+Remember to create the .env file, see .env.stub
 
 ```bash
-touch appsettings.json
-touch data.json
-touch withings.json # optional
-mkdir logs # optional
+pico .env
 ```
 
-Run the container and setup Withings token
+Run the container and setup Withings login for the first run
 
 ```bash
 docker compose up -d
 
-# run once to setup the Withings token
-# this command can also be for manual sync
+# run once to setup the Withings login
+# this command can also be used for manual sync
 docker compose exec withings-to-garmin /app/WithingsToGarminSync
 ```
 
