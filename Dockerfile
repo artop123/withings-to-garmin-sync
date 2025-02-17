@@ -19,8 +19,14 @@ RUN apt-get update && apt-get install -y cron libicu-dev && rm -rf /var/lib/apt/
 
 COPY --from=build /publish/WithingsToGarminSync /app/
 
-RUN chmod +x /app/WithingsToGarminSync
+# cronjob to run
+COPY <<EOF /app/cronjob.sh
+#!/bin/sh
+cd /app
+./WithingsToGarminSync >> /var/log/cron.log 2>&1
+EOF
 
+# cron schedule setup
 COPY <<EOF /app/entrypoint.sh
 #!/bin/sh
 set -e
@@ -30,17 +36,18 @@ if [ -z "\$CRON_SCHEDULE" ]; then
   CRON_SCHEDULE="0 * * * *"
 fi
 
-echo "\$CRON_SCHEDULE cd /app && /app/WithingsToGarminSync >> /var/log/cron.log 2>&1" > /etc/cron.d/app-cron
+echo "\$CRON_SCHEDULE /app/cronjob.sh" > /etc/cron.d/app-cron
 
 chmod 0644 /etc/cron.d/app-cron
 crontab /etc/cron.d/app-cron
-
 touch /var/log/cron.log
 
 echo "Cron is running: \$CRON_SCHEDULE"
 cron && tail -f /var/log/cron.log
 EOF
 
+RUN chmod +x /app/WithingsToGarminSync
+RUN chmod +x /app/cronjob.sh
 RUN chmod +x /app/entrypoint.sh
 
 CMD ["/app/entrypoint.sh"]
