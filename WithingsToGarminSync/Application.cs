@@ -7,8 +7,8 @@ namespace WithingsToGarminSync
 {
 	public class Application
 	{
-		private readonly string _dataJsonFile = "data.json";
-		private readonly string _withingsJsonFile = "withings.json";
+		private readonly string _dataJsonFile = "data/data.json";
+		private readonly string _withingsJsonFile = "data/withings.json";
 		private readonly ILogService _logService;
 
 		FileService? _fileService;

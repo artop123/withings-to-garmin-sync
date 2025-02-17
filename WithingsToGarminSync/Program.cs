@@ -5,6 +5,7 @@ using WithingsToGarminSync.Services;
 
 var configuration = new ConfigurationBuilder()
 	.AddJsonFile("appsettings.json", optional: false)
+	.AddEnvironmentVariables()
 	.Build();
 
 var logger = new SerilogService(configuration);
