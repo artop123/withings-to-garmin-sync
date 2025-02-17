@@ -7,5 +7,6 @@ services:
     image: withings-to-garmin
     container_name: withings-to-garmin
     restart: unless-stopped
+    env_file: ./.env
     volumes:
       - ./data:/app/data
