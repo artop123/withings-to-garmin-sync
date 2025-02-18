@@ -12,7 +12,7 @@ RUN dotnet publish WithingsToGarminSync/WithingsToGarminSync.csproj \
     /p:EnableCompressionInSingleFile=true \
     -o /publish
 
-FROM debian:bookworm-slim
+FROM debian:stable-slim
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y cron libicu-dev && rm -rf /var/lib/apt/lists/*
