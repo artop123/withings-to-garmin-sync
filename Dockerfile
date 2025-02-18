@@ -15,8 +15,10 @@ RUN dotnet publish WithingsToGarminSync/WithingsToGarminSync.csproj \
 FROM debian:stable-slim
 WORKDIR /app
 
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y cron libicu72 && \
+    apt-get install -y cron && \
     rm -rf /var/lib/apt/lists/*
     
 RUN mkdir -p /app/data/log
