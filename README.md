@@ -38,7 +38,7 @@ version: "3.8"
 
 services:
   withings-to-garmin:
-    image: artop/withings-to-garmin
+    image: artop/withings-to-garmin:latest
     container_name: withings-to-garmin
     restart: unless-stopped
     env_file: ./.env
