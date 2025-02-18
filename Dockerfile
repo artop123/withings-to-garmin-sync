@@ -12,11 +12,13 @@ RUN dotnet publish WithingsToGarminSync/WithingsToGarminSync.csproj \
     /p:EnableCompressionInSingleFile=true \
     -o /publish
 
-FROM debian:bookworm-slim
+FROM debian:stable-slim
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y cron libicu-dev && rm -rf /var/lib/apt/lists/*
-
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y cron libicu72 && \
+    rm -rf /var/lib/apt/lists/*
+    
 RUN mkdir -p /app/data/log
 COPY --from=build /publish/WithingsToGarminSync /app/
 COPY --from=build /publish/appsettings.json /app/appsettings.json
