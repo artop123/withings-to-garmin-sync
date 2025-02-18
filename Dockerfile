@@ -33,12 +33,15 @@ COPY <<EOF /app/entrypoint.sh
 #!/bin/sh
 set -e
 
+# environment variables for cron
+env | grep -v "no_proxy" > /etc/environment
+
 if [ -z "\$CRON_SCHEDULE" ]; then
   echo "CRON_SCHEDULE not set, using default value '0 * * * *'"
   CRON_SCHEDULE="0 * * * *"
 fi
 
-echo "\$CRON_SCHEDULE /app/cronjob.sh" > /etc/cron.d/app-cron
+echo "\$CRON_SCHEDULE . /etc/environment; /app/cronjob.sh" > /etc/cron.d/app-cron
 
 chmod 0644 /etc/cron.d/app-cron
 crontab /etc/cron.d/app-cron

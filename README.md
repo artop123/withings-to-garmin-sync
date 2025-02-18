@@ -46,7 +46,7 @@ services:
       - ./data:/app/data
 ```
 
-Create the ``.env`` file. The default cron schedule runs daily from 6 to 10 AM hourly
+Create the ``.env`` file. The default cron schedule runs daily from 6 to 10 AM hourly. Remember to edit the settings
 
 ```bash
 cat <<EOF > .env
@@ -57,10 +57,8 @@ GARMIN__USERNAME=your_username
 GARMIN__PASSWORD=your_password
 
 CRON_SCHEDULE="0 6-10 * * *"
+TZ=Europe/Helsinki
 EOF
-
-# edit the settings
-pico .env
 ```
 
 Run the container and setup Withings login for the first run
