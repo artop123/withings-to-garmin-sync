@@ -6,6 +6,12 @@ The purpose of this project is to sync measurement results from a Withings scale
 
 Garmin data upload uses an unofficial API project: https://github.com/sealbro/dotnet.garmin.connect
 
+<p align="left">
+<img src="https://badgen.net/github/release/artop123/withings-to-garmin-sync" alt="Latest release">
+<img src="https://github.com/artop123/withings-to-garmin-sync/actions/workflows/tests.yml/badge.svg" alt="Lint and Tests">
+<img src="https://github.com/artop123/withings-to-garmin-sync/actions/workflows/docker.yml/badge.svg" alt="Docker publish">
+</p>
+
 ## Functionality
 
 The program retrieves the user's most recent weight from Withings. If the weight has not yet been uploaded to Garmin using this application, it will be saved (eg. first run). The timestamp of the entry will be the time of the execution, not the actual measurement date.
