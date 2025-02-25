@@ -2,9 +2,7 @@
 
 ![Withings to Garmin Header](assets/header.jpg)
 
-The purpose of this project is to sync measurement results from a Withings scale to Garmin. Withings data is fetched using an application registration (official API).
-
-Garmin data upload uses an unofficial API project: https://github.com/sealbro/dotnet.garmin.connect
+The purpose of this project is to sync measurement results from a Withings scale to Garmin. Withings data is fetched using an application registration (official API). Garmin data upload uses <a href="https://github.com/sealbro/dotnet.garmin.connect" target="_blank">an unofficial API project</a>.
 
 <p align="left">
 <img src="https://badgen.net/github/release/artop123/withings-to-garmin-sync" alt="Latest release">
@@ -70,10 +68,11 @@ EOF
 Run the container and setup Withings login for the first run
 
 ```bash
+# start the container
 docker compose up -d
 
 # run once to setup the Withings login
-# this command can also be used for manual sync
+# can also be used for manual sync
 docker compose exec withings-to-garmin /app/WithingsToGarminSync
 ```
 
