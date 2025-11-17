@@ -16,7 +16,7 @@ FROM debian:stable-slim
 WORKDIR /app
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y cron libicu72 && \
+    apt-get install -y cron libicu-dev && \
     rm -rf /var/lib/apt/lists/*
     
 RUN mkdir -p /app/data/log
