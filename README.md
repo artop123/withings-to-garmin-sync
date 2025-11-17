@@ -5,7 +5,7 @@
 The purpose of this project is to sync measurement results from a Withings scale to Garmin. Withings data is fetched using an application registration (official API). Garmin data upload uses <a href="https://github.com/sealbro/dotnet.garmin.connect" target="_blank">an unofficial API project</a>.
 
 <p align="left">
-<img src="https://badgen.net/github/release/artop123/withings-to-garmin-sync" alt="Latest release">
+<img src="https://img.shields.io/github/v/release/artop123/withings-to-garmin-sync" alt="Latest release">
 <img src="https://github.com/artop123/withings-to-garmin-sync/actions/workflows/tests.yml/badge.svg" alt="Lint and Tests">
 <img src="https://github.com/artop123/withings-to-garmin-sync/actions/workflows/docker.yml/badge.svg" alt="Docker publish">
 </p>
