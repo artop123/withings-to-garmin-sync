@@ -27,8 +27,7 @@ Visit the [Withings Developer Portal](https://developer.withings.com/) and log i
     - **Services**:
 	- [x] Public API integration					 
     - **Name**: Choose a name for your application (e.g., `WithingsToGarminSync`).
-	- **Description**: Write a short description of what the application does.
-	- **Registered URLs**: Enter "https://localhost". This URL must match what you configure in your application.
+	- **Registered URLs**: Enter "https://localhost"
 - Copy and save your `Client ID` and `Client Secret`. These will be needed to configure the application.
 
 After completing these steps, your Withings application is ready, and you can use it to fetch weight data with this software.
@@ -38,8 +37,6 @@ After completing these steps, your Withings application is ready, and you can us
 Create ``docker-compose.yml``:
 
 ```yml
-version: "3.8"
-
 services:
   withings-to-garmin:
     image: artop/withings-to-garmin:latest
