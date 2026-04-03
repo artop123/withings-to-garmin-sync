@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using WithingsToGarminSync.Interfaces;
+using WithingsToGarminSync.Methods;
 using WithingsToGarminSync.Models.General;
 using WithingsToGarminSync.Models.Withings;
 
@@ -32,7 +33,7 @@ namespace WithingsToGarminSync.Services
 				model.Token = newToken;
 			}
 
-			EnsureDirectoryExists(path);
+			FileMethods.EnsureDirectoryExists(path);
 			var json = JsonSerializer.Serialize(model);
 			File.WriteAllText(path, json);
 
@@ -69,7 +70,7 @@ namespace WithingsToGarminSync.Services
 
 			try
 			{
-				EnsureDirectoryExists(path);
+				FileMethods.EnsureDirectoryExists(path);
 				var json = JsonSerializer.Serialize(model);
 				File.WriteAllText(path, json);
 
@@ -84,13 +85,5 @@ namespace WithingsToGarminSync.Services
 			}
 		}
 
-		private static void EnsureDirectoryExists(string path)
-		{
-			var directory = Path.GetDirectoryName(path);
-			if (!string.IsNullOrWhiteSpace(directory))
-			{
-				Directory.CreateDirectory(directory);
-			}
-		}
 	}
 }

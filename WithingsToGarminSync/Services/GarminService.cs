@@ -1,5 +1,6 @@
 ﻿using Garmin.Connect;
 using Garmin.Connect.Auth;
+using WithingsToGarminSync.Methods;
 
 namespace WithingsToGarminSync.Services
 {
@@ -7,6 +8,7 @@ namespace WithingsToGarminSync.Services
 	{
 		string username = "";
 		string password = "";
+		string tokenCachePath = "";
 
 		public GarminService SetUsername(string value)
 		{
@@ -20,11 +22,24 @@ namespace WithingsToGarminSync.Services
 			return this;
 		}
 
+		public GarminService SetTokenCachePath(string value)
+		{
+			tokenCachePath = value;
+			return this;
+		}
+
 		public async Task<bool> UploadWeight(double weight)
 		{
-			var authParameters = new BasicAuthParameters(username, password);
+			if (string.IsNullOrWhiteSpace(tokenCachePath))
+			{
+				throw new Exception("Garmin token cache path is missing.");
+			}
 
-			var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));
+			var authParameters = new BasicAuthParameters(username, password);
+			FileMethods.EnsureDirectoryExists(tokenCachePath);
+			var tokenCache = new FileTokenCache(tokenCachePath);
+
+			var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters, null, tokenCache));
 			var weightInGrams = weight * 1000;
 
 			await client.SetUserWeight(weightInGrams);

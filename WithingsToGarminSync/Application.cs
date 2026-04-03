@@ -9,6 +9,7 @@ namespace WithingsToGarminSync
 	{
 		private readonly string _dataJsonFile = "data/data.json";
 		private readonly string _withingsJsonFile = "data/withings.json";
+		private readonly string _garminTokenCacheFile = "data/garmin_token.json";
 		private readonly ILogService _logService;
 
 		FileService? _fileService;
@@ -39,7 +40,8 @@ namespace WithingsToGarminSync
 
 			_garminService = new GarminService()
 				.SetUsername(_settings.Garmin.Username)
-				.SetPassword(_settings.Garmin.Password);
+				.SetPassword(_settings.Garmin.Password)
+				.SetTokenCachePath(_garminTokenCacheFile);
 
 			return this;
 		}

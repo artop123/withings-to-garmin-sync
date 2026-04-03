@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /WithingsToGarminSync/appsettings.json
 .env
 .DS_Store
+WithingsToGarminSync/data/
