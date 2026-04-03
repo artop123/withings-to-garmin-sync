@@ -44,27 +44,64 @@ namespace WithingsToGarminSync
 			return this;
 		}
 
-		private WithingsAccessTokenBody? GetWithingsToken()
+		private WithingsAccessTokenBody GetWithingsToken()
 		{
 			if (_settings == null || _withingsService == null)
 			{
 				throw new Exception("WithingsServices not found, forgot to Start()?");
 			}
 
-			if (_runData?.Token != null)
+			WithingsAccessTokenBody? token = _runData?.Token;
+
+			if (token != null)
 			{
 				_logService?.Log("Using old Withings token");
-				return _runData.Token;
+				_logService?.Log("Refreshing Withings token.");
+
+				var refreshedToken = _withingsService.GetAccessTokenByRefreshToken(token.Refresh_token);
+				if (HasValidToken(refreshedToken))
+				{
+					_logService?.Log("Withings token refreshed.");
+					return refreshedToken!;
+				}
+
+				_logService?.Error("Withings refresh token is no longer valid. Re-authorization required.");
 			}
 
-			_logService?.Log("Withings token not found, requesting access from the user..");
+			token = RequestNewWithingsToken();
+			_logService?.Log("Token received..");
+			return token!;
+		}
 
+		private static bool HasValidToken(WithingsAccessTokenBody? token)
+		{
+			return token != null
+				&& !string.IsNullOrWhiteSpace(token.Access_token)
+				&& !string.IsNullOrWhiteSpace(token.Refresh_token);
+		}
+
+		private WithingsAccessTokenBody RequestNewWithingsToken()
+		{
+			if (_withingsService == null)
+			{
+				throw new Exception("WithingsServices not found, forgot to Start()?");
+			}
+
+			if (Console.IsInputRedirected)
+			{
+				throw new Exception("Withings token request failed in non-interactive mode. Run the app once interactively to authorize Withings.");
+			}
+
+			_logService?.Log("Requesting a new Withings authorization from the user.");
 			var code = _withingsService.GetAccessCode();
 			var token = _withingsService.GetAccessToken(code);
 
-			_logService?.Log("Token received..");
+			if (!HasValidToken(token))
+			{
+				throw new Exception("Unable to acquire a valid Withings token.");
+			}
 
-			return token;
+			return token!;
 		}
 
 		public async Task Run()
@@ -77,10 +114,9 @@ namespace WithingsToGarminSync
 				throw new Exception("Services not found, forgot to Start()?");
 			}
 
-			var token = GetWithingsToken();
-			token = _withingsService.GetAccessTokenByRefreshToken(token?.Refresh_token);
+			var currentToken = GetWithingsToken();
 
-			var data = _withingsService.FetchWeightAndFatData(token?.Access_token);
+			var data = _withingsService.FetchWeightAndFatData(currentToken.Access_token);
 
 			if (data == null || data.Count == 0)
 			{
@@ -105,7 +141,7 @@ namespace WithingsToGarminSync
 			}
 
 			_fileService.Save(_withingsJsonFile, data);
-			_fileService.SaveRunData(_dataJsonFile, latest, token);
+			_fileService.SaveRunData(_dataJsonFile, latest, currentToken);
 		}
 	}
 }

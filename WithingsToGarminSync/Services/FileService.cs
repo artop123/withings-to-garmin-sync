@@ -32,6 +32,7 @@ namespace WithingsToGarminSync.Services
 				model.Token = newToken;
 			}
 
+			EnsureDirectoryExists(path);
 			var json = JsonSerializer.Serialize(model);
 			File.WriteAllText(path, json);
 
@@ -68,6 +69,7 @@ namespace WithingsToGarminSync.Services
 
 			try
 			{
+				EnsureDirectoryExists(path);
 				var json = JsonSerializer.Serialize(model);
 				File.WriteAllText(path, json);
 
@@ -79,6 +81,15 @@ namespace WithingsToGarminSync.Services
 			{
 				_logService?.Log($"Failed to load the file: {ex.Message}");
 				return false;
+			}
+		}
+
+		private static void EnsureDirectoryExists(string path)
+		{
+			var directory = Path.GetDirectoryName(path);
+			if (!string.IsNullOrWhiteSpace(directory))
+			{
+				Directory.CreateDirectory(directory);
 			}
 		}
 	}

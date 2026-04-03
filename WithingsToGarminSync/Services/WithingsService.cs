@@ -61,14 +61,26 @@ namespace WithingsToGarminSync.Services
 			request.AddParameter("redirect_uri", redirectUri);
 
 			var response = client.Execute<WithingsAccessTokenResponse>(request);
+			if (!response.IsSuccessful
+				|| response.Data == null
+				|| response.Data.Status != 0
+				|| string.IsNullOrWhiteSpace(response.Data.Body.Access_token)
+				|| string.IsNullOrWhiteSpace(response.Data.Body.Refresh_token))
+			{
+				_logService?.Error($"Failed to exchange Withings authorization code for token: {response.Content}");
+				return null;
+			}
 
-			return response.Data?.Body;
+			return response.Data.Body;
 		}
 
 		public WithingsAccessTokenBody? GetAccessTokenByRefreshToken(string? refreshToken)
 		{
 			if (string.IsNullOrWhiteSpace(refreshToken))
+			{
+				_logService?.Error("Withings refresh token is missing.");
 				return null;
+			}
 
 			var client = new RestClient(BaseUrl);
 			var request = new RestRequest("oauth2", Method.Post);
@@ -80,8 +92,17 @@ namespace WithingsToGarminSync.Services
 			request.AddParameter("redirect_uri", redirectUri);
 
 			var response = client.Execute<WithingsAccessTokenResponse>(request);
+			if (!response.IsSuccessful
+				|| response.Data == null
+				|| response.Data.Status != 0
+				|| string.IsNullOrWhiteSpace(response.Data.Body.Access_token)
+				|| string.IsNullOrWhiteSpace(response.Data.Body.Refresh_token))
+			{
+				_logService?.Error($"Failed to refresh Withings token: {response.Content}");
+				return null;
+			}
 
-			return response.Data?.Body;
+			return response.Data.Body;
 		}
 
 		public List<MeasurementData> FetchWeightAndFatData(string? accessToken)
