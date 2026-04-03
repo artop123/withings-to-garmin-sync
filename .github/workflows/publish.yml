@@ -19,7 +19,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '10.0.x'
 
     - name: Lint the code
       run: dotnet format --verify-no-changes
@@ -27,11 +27,23 @@ jobs:
     - name: Determine version
       id: version
       run: |
-        VERSION=$(git tag --sort=-v:refname | head -n 1)
-        VERSION=${VERSION/v/}
-        IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
-        PATCH=$((VERSION_PARTS[2] + 1))
-        echo "::set-output name=version::${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+        VERSION_PREFIX=$(tr -d '[:space:]' < VERSION)
+
+        if ! [[ "$VERSION_PREFIX" =~ ^[0-9]+\.[0-9]+$ ]]; then
+          echo "Invalid VERSION file format: '$VERSION_PREFIX'. Expected format: MAJOR.MINOR (example: 0.2)"
+          exit 1
+        fi
+
+        LATEST_TAG=$(git tag --list "v${VERSION_PREFIX}.*" --sort=-v:refname | head -n 1)
+
+        if [ -z "$LATEST_TAG" ]; then
+          PATCH=0
+        else
+          PATCH_NUMBER=${LATEST_TAG#v${VERSION_PREFIX}.}
+          PATCH=$((PATCH_NUMBER + 1))
+        fi
+
+        echo "version=${VERSION_PREFIX}.${PATCH}" >> "$GITHUB_OUTPUT"
 
     - name: Restore dependencies
       run: dotnet restore
