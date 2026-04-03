@@ -1,4 +1,4 @@
-namespace WithingsToGarminSync.Methods
+﻿namespace WithingsToGarminSync.Methods
 {
 	internal static class FileMethods
 	{
