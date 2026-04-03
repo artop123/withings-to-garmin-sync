@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /WithingsToGarminSync/appsettings.json
 .env
+.DS_Store
