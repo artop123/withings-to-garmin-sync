@@ -1,14 +1,14 @@
-﻿namespace WithingsToGarminSync.Methods
+﻿namespace WithingsToGarminSync.Methods;
+
+internal static class FileMethods
 {
-	internal static class FileMethods
+	public static void EnsureDirectoryExists(string path)
 	{
-		public static void EnsureDirectoryExists(string path)
+		var directory = Path.GetDirectoryName(path);
+		if (!string.IsNullOrWhiteSpace(directory))
 		{
-			var directory = Path.GetDirectoryName(path);
-			if (!string.IsNullOrWhiteSpace(directory))
-			{
-				Directory.CreateDirectory(directory);
-			}
+			Directory.CreateDirectory(directory);
 		}
 	}
+
 }

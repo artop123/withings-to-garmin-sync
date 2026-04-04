@@ -1,8 +1,8 @@
-﻿namespace WithingsToGarminSync.Models.Withings
+﻿namespace WithingsToGarminSync.Models.Withings;
+
+public class WithingsAccessTokenResponse
 {
-	public class WithingsAccessTokenResponse
-	{
-		public int Status { get; set; }
-		public WithingsAccessTokenBody Body { get; set; } = new WithingsAccessTokenBody();
-	}
+	public int Status { get; set; }
+	public WithingsAccessTokenBody Body { get; set; } = new WithingsAccessTokenBody();
+
 }
