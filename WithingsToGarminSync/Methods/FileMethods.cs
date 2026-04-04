@@ -10,5 +10,4 @@ internal static class FileMethods
 			Directory.CreateDirectory(directory);
 		}
 	}
-
 }

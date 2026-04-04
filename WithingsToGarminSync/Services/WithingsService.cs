@@ -194,5 +194,4 @@ public class WithingsService
 
 		return result;
 	}
-
 }

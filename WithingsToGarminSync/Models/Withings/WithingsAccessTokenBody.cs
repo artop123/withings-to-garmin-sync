@@ -15,5 +15,4 @@ public class WithingsAccessTokenBody
 
 	public string Scope { get; set; } = "";
 	public string Token_type { get; set; } = "";
-
 }

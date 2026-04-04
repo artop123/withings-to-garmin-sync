@@ -8,5 +8,4 @@ class WithingsMeasure
 	public int Algo { get; set; }
 	public int Fm { get; set; }
 	public int Position { get; set; }
-
 }

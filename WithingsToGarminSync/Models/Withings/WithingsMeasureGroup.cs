@@ -13,5 +13,4 @@ class WithingsMeasureGroup
 	public List<WithingsMeasure> Measures { get; set; } = [];
 	public string Comment { get; set; } = "";
 	public string Timezone { get; set; } = "";
-
 }

@@ -7,5 +7,4 @@ class WithingsMeasurementBody
 	public List<WithingsMeasureGroup> Measuregrps { get; set; } = [];
 	public int More { get; set; }
 	public int Offset { get; set; }
-
 }

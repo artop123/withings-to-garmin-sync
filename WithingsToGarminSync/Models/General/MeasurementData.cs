@@ -10,5 +10,4 @@ public class MeasurementData
 	public double BoneMass { get; set; }
 	public double FatFreeMass { get; set; }
 	public double FatPercent { get; set; }
-
 }

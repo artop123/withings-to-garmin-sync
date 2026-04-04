@@ -35,5 +35,4 @@ public class SerilogService : ILogService
 	{
 		Serilog.Log.Error(message);
 	}
-
 }

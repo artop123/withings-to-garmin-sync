@@ -16,7 +16,7 @@ public class DateTimeMethodsTests
 		var result = DateTimeMethods.UnixTimeStampToDateTime(unixTimeStamp);
 		var resultAsUtc = result.ToUniversalTime();
 
-	// Assert
-	resultAsUtc.Should().Be(expectedDateTime);
+		// Assert
+		resultAsUtc.Should().Be(expectedDateTime);
 	}
 }

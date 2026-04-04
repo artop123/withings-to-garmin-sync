@@ -143,5 +143,4 @@ public class Application
 		_fileService.Save(_withingsJsonFile, data);
 		_fileService.SaveRunData(_dataJsonFile, latest, currentToken);
 	}
-
 }

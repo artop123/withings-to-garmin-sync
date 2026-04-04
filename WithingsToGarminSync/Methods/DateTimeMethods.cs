@@ -7,5 +7,4 @@ public static class DateTimeMethods
 		var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp);
 		return dateTimeOffset.LocalDateTime;
 	}
-
 }

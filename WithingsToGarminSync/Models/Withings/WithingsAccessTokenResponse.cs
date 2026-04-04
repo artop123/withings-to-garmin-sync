@@ -4,5 +4,4 @@ public class WithingsAccessTokenResponse
 {
 	public int Status { get; set; }
 	public WithingsAccessTokenBody Body { get; set; } = new WithingsAccessTokenBody();
-
 }

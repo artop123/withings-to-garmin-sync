@@ -8,5 +8,4 @@ public class RunData
 	public DateTime? LastRun { get; set; }
 	public double LastWeight { get; set; }
 	public DateTime? LastWeightDate { get; set; }
-
 }

@@ -46,5 +46,4 @@ internal class GarminService
 
 		return true;
 	}
-
 }
