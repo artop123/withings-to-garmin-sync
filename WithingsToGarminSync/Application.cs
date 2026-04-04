@@ -55,13 +55,18 @@ namespace WithingsToGarminSync
 
 			WithingsAccessTokenBody? token = _runData?.Token;
 
+			if (_withingsService.IsTokenUsable(token))
+			{
+				_logService?.Log($"Using existing Withings token until {token!.ExpiresAtUtc:O}");
+				return token!;
+			}
+
 			if (token != null)
 			{
-				_logService?.Log("Using old Withings token");
 				_logService?.Log("Refreshing Withings token.");
 
 				var refreshedToken = _withingsService.GetAccessTokenByRefreshToken(token.Refresh_token);
-				if (HasValidToken(refreshedToken))
+				if (_withingsService.IsTokenUsable(refreshedToken))
 				{
 					_logService?.Log("Withings token refreshed.");
 					return refreshedToken!;
@@ -73,13 +78,6 @@ namespace WithingsToGarminSync
 			token = RequestNewWithingsToken();
 			_logService?.Log("Token received..");
 			return token!;
-		}
-
-		private static bool HasValidToken(WithingsAccessTokenBody? token)
-		{
-			return token != null
-				&& !string.IsNullOrWhiteSpace(token.Access_token)
-				&& !string.IsNullOrWhiteSpace(token.Refresh_token);
 		}
 
 		private WithingsAccessTokenBody RequestNewWithingsToken()
@@ -98,7 +96,7 @@ namespace WithingsToGarminSync
 			var code = _withingsService.GetAccessCode();
 			var token = _withingsService.GetAccessToken(code);
 
-			if (!HasValidToken(token))
+			if (!_withingsService.IsTokenUsable(token))
 			{
 				throw new Exception("Unable to acquire a valid Withings token.");
 			}

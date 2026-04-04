@@ -71,6 +71,7 @@ namespace WithingsToGarminSync.Services
 				return null;
 			}
 
+			SetTokenIssuedNow(response.Data.Body);
 			return response.Data.Body;
 		}
 
@@ -102,7 +103,32 @@ namespace WithingsToGarminSync.Services
 				return null;
 			}
 
+			SetTokenIssuedNow(response.Data.Body);
 			return response.Data.Body;
+		}
+
+		public bool IsTokenUsable(WithingsAccessTokenBody? token)
+		{
+			if (token == null
+				|| string.IsNullOrWhiteSpace(token.Access_token)
+				|| string.IsNullOrWhiteSpace(token.Refresh_token))
+			{
+				return false;
+			}
+
+			var tokenExpiresAtUtc = token.ExpiresAtUtc;
+			if (tokenExpiresAtUtc == null)
+			{
+				return false;
+			}
+
+			// Refresh a few minutes before expiry to avoid failing mid-run.
+			return tokenExpiresAtUtc.Value > DateTime.UtcNow.AddMinutes(5);
+		}
+
+		private static void SetTokenIssuedNow(WithingsAccessTokenBody token)
+		{
+			token.IssuedAtUtc = DateTime.UtcNow;
 		}
 
 		public List<MeasurementData> FetchWeightAndFatData(string? accessToken)
