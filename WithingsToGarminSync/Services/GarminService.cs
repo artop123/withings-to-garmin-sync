@@ -1,35 +1,50 @@
 ﻿using Garmin.Connect;
 using Garmin.Connect.Auth;
+using WithingsToGarminSync.Interfaces;
+using WithingsToGarminSync.Methods;
 
-namespace WithingsToGarminSync.Services
+namespace WithingsToGarminSync.Services;
+
+internal class GarminService : IGarminService
 {
-	internal class GarminService
+	string username = "";
+	string password = "";
+	string tokenCachePath = "";
+
+	public IGarminService SetUsername(string value)
 	{
-		string username = "";
-		string password = "";
+		username = value;
+		return this;
+	}
 
-		public GarminService SetUsername(string value)
+	public IGarminService SetPassword(string value)
+	{
+		password = value;
+		return this;
+	}
+
+	public IGarminService SetTokenCachePath(string value)
+	{
+		tokenCachePath = value;
+		return this;
+	}
+
+	public async Task<bool> UploadWeight(double weight)
+	{
+		if (string.IsNullOrWhiteSpace(tokenCachePath))
 		{
-			username = value;
-			return this;
+			throw new Exception("Garmin token cache path is missing.");
 		}
 
-		public GarminService SetPassword(string value)
-		{
-			password = value;
-			return this;
-		}
+		var authParameters = new BasicAuthParameters(username, password);
+		FileMethods.EnsureDirectoryExists(tokenCachePath);
+		var tokenCache = new FileTokenCache(tokenCachePath);
 
-		public async Task<bool> UploadWeight(double weight)
-		{
-			var authParameters = new BasicAuthParameters(username, password);
+		var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters, null, tokenCache));
+		var weightInGrams = weight * 1000;
 
-			var client = new GarminConnectClient(new GarminConnectContext(new HttpClient(), authParameters));
-			var weightInGrams = weight * 1000;
+		await client.SetUserWeight(weightInGrams);
 
-			await client.SetUserWeight(weightInGrams);
-
-			return true;
-		}
+		return true;
 	}
 }

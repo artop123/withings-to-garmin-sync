@@ -1,8 +1,7 @@
-﻿namespace WithingsToGarminSync.Models.Withings
+﻿namespace WithingsToGarminSync.Models.Withings;
+
+public class WithingsMeasurementResponse
 {
-	class WithingsMeasurementResponse
-	{
-		public int Status { get; set; }
-		public WithingsMeasurementBody? Body { get; set; }
-	}
+	public int Status { get; set; }
+	public WithingsMeasurementBody? Body { get; set; }
 }

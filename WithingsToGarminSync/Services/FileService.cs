@@ -1,96 +1,87 @@
 ﻿using System.Text.Json;
 using WithingsToGarminSync.Interfaces;
+using WithingsToGarminSync.Methods;
 using WithingsToGarminSync.Models.General;
 using WithingsToGarminSync.Models.Withings;
 
-namespace WithingsToGarminSync.Services
-{
-	public class FileService
-	{
-		private readonly ILogService _logService;
+namespace WithingsToGarminSync.Services;
 
-		public FileService(ILogService logService)
+public class FileService : IFileService
+{
+	private readonly ILogService _logService;
+
+	public FileService(ILogService logService)
+	{
+		_logService = logService;
+	}
+
+	public void SaveRunData(string path, MeasurementData? data = null, WithingsAccessTokenBody? newToken = null)
+	{
+		var model = new RunData()
 		{
-			_logService = logService;
+			LastRun = DateTime.Now
+		};
+
+		if (data != null)
+		{
+			model.LastWeightDate = data.Date;
+			model.LastWeight = data.Weight;
 		}
 
-		public void SaveRunData(string path, MeasurementData? data = null, WithingsAccessTokenBody? newToken = null)
+		if (newToken != null)
 		{
-			var model = new RunData()
-			{
-				LastRun = DateTime.Now
-			};
+			model.Token = newToken;
+		}
 
-			if (data != null)
-			{
-				model.LastWeightDate = data.Date;
-				model.LastWeight = data.Weight;
-			}
+		FileMethods.EnsureDirectoryExists(path);
+		var json = JsonSerializer.Serialize(model);
+		File.WriteAllText(path, json);
 
-			if (newToken != null)
-			{
-				model.Token = newToken;
-			}
+		_logService?.Log($"File {path} saved");
+	}
 
-			EnsureDirectoryExists(path);
+	public T? Load<T>(string? path = null)
+	{
+		if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+		{
+			_logService?.Error($"File {path} not found");
+			return default;
+		}
+
+		_logService?.Log($"Loading {typeof(T)} from {path}");
+
+		try
+		{
+			var json = File.ReadAllText(path);
+			return JsonSerializer.Deserialize<T>(json);
+		}
+
+		catch (Exception ex)
+		{
+			_logService?.Log($"Failed to load the file: {ex.Message}");
+			return default;
+		}
+	}
+
+	public bool Save(string path, object model)
+	{
+		if (string.IsNullOrWhiteSpace(path) || model == null)
+			return false;
+
+		try
+		{
+			FileMethods.EnsureDirectoryExists(path);
 			var json = JsonSerializer.Serialize(model);
 			File.WriteAllText(path, json);
 
 			_logService?.Log($"File {path} saved");
+			return true;
 		}
 
-		public T? Load<T>(string? path = null)
+		catch (Exception ex)
 		{
-			if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-			{
-				_logService?.Error($"File {path} not found");
-				return default;
-			}
-
-			_logService?.Log($"Loading {typeof(T)} from {path}");
-
-			try
-			{
-				var json = File.ReadAllText(path);
-				return JsonSerializer.Deserialize<T>(json);
-			}
-
-			catch (Exception ex)
-			{
-				_logService?.Log($"Failed to load the file: {ex.Message}");
-				return default;
-			}
-		}
-
-		public bool Save(string path, object model)
-		{
-			if (string.IsNullOrWhiteSpace(path) || model == null)
-				return false;
-
-			try
-			{
-				EnsureDirectoryExists(path);
-				var json = JsonSerializer.Serialize(model);
-				File.WriteAllText(path, json);
-
-				_logService?.Log($"File {path} saved");
-				return true;
-			}
-
-			catch (Exception ex)
-			{
-				_logService?.Log($"Failed to load the file: {ex.Message}");
-				return false;
-			}
-		}
-
-		private static void EnsureDirectoryExists(string path)
-		{
-			var directory = Path.GetDirectoryName(path);
-			if (!string.IsNullOrWhiteSpace(directory))
-			{
-				Directory.CreateDirectory(directory);
-			}
+			_logService?.Log($"Failed to load the file: {ex.Message}");
+			return false;
 		}
 	}
 }

@@ -1,11 +1,10 @@
-﻿namespace WithingsToGarminSync.Models.Withings
+﻿namespace WithingsToGarminSync.Models.Withings;
+
+public class WithingsMeasurementBody
 {
-	class WithingsMeasurementBody
-	{
-		public long UpdateTime { get; set; }
-		public string Timezone { get; set; } = "";
-		public List<WithingsMeasureGroup> Measuregrps { get; set; } = [];
-		public int More { get; set; }
-		public int Offset { get; set; }
-	}
+	public long UpdateTime { get; set; }
+	public string Timezone { get; set; } = "";
+	public List<WithingsMeasureGroup> Measuregrps { get; set; } = [];
+	public int More { get; set; }
+	public int Offset { get; set; }
 }

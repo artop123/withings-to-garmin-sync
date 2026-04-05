@@ -1,12 +1,11 @@
-﻿namespace WithingsToGarminSync.Models.Withings
+﻿namespace WithingsToGarminSync.Models.Withings;
+
+public class WithingsMeasure
 {
-	class WithingsMeasure
-	{
-		public long Value { get; set; }
-		public int Type { get; set; }
-		public int Unit { get; set; }
-		public int Algo { get; set; }
-		public int Fm { get; set; }
-		public int Position { get; set; }
-	}
+	public long Value { get; set; }
+	public int Type { get; set; }
+	public int Unit { get; set; }
+	public int Algo { get; set; }
+	public int Fm { get; set; }
+	public int Position { get; set; }
 }
