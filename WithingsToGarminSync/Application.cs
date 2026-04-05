@@ -12,15 +12,27 @@ public class Application
 	private readonly string _garminTokenCacheFile = "data/garmin_token.json";
 	private readonly ILogService _logService;
 
-	FileService? _fileService;
+	IFileService? _fileService;
 	Settings? _settings;
 	RunData? _runData;
-	WithingsService? _withingsService;
-	GarminService? _garminService;
+	IWithingsService? _withingsService;
+	IGarminService? _garminService;
 
 	public Application(ILogService logService)
+		: this(logService, null, null, null)
+	{
+	}
+
+	public Application(
+		ILogService logService,
+		IFileService? fileService,
+		IWithingsService? withingsService,
+		IGarminService? garminService)
 	{
 		_logService = logService;
+		_fileService = fileService;
+		_withingsService = withingsService;
+		_garminService = garminService;
 	}
 
 	public Application Start(Settings? settings)
@@ -30,15 +42,15 @@ public class Application
 		ArgumentNullException.ThrowIfNull(settings.Withings);
 
 		_settings = settings;
-		_fileService = new FileService(_logService);
+		_fileService ??= new FileService(_logService);
 		_runData = _fileService.Load<RunData>(_dataJsonFile);
 
-		_withingsService = new WithingsService(_logService)
+		_withingsService = (_withingsService ?? new WithingsService(_logService))
 			.SetClientId(_settings.Withings.ClientId)
 			.SetClientSecret(_settings.Withings.ClientSecret)
 			.SetRedirectUrl(_settings.Withings.RedirectUrl);
 
-		_garminService = new GarminService()
+		_garminService = (_garminService ?? new GarminService())
 			.SetUsername(_settings.Garmin.Username)
 			.SetPassword(_settings.Garmin.Password)
 			.SetTokenCachePath(_garminTokenCacheFile);

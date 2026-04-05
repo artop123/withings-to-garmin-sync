@@ -6,7 +6,7 @@ using WithingsToGarminSync.Models.Withings;
 
 namespace WithingsToGarminSync.Services;
 
-public class FileService
+public class FileService : IFileService
 {
 	private readonly ILogService _logService;
 

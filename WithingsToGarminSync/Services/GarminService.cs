@@ -1,28 +1,29 @@
 ﻿using Garmin.Connect;
 using Garmin.Connect.Auth;
+using WithingsToGarminSync.Interfaces;
 using WithingsToGarminSync.Methods;
 
 namespace WithingsToGarminSync.Services;
 
-internal class GarminService
+internal class GarminService : IGarminService
 {
 	string username = "";
 	string password = "";
 	string tokenCachePath = "";
 
-	public GarminService SetUsername(string value)
+	public IGarminService SetUsername(string value)
 	{
 		username = value;
 		return this;
 	}
 
-	public GarminService SetPassword(string value)
+	public IGarminService SetPassword(string value)
 	{
 		password = value;
 		return this;
 	}
 
-	public GarminService SetTokenCachePath(string value)
+	public IGarminService SetTokenCachePath(string value)
 	{
 		tokenCachePath = value;
 		return this;

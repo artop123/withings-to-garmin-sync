@@ -1,6 +1,6 @@
 ﻿namespace WithingsToGarminSync.Models.Withings;
 
-class WithingsMeasureGroup
+public class WithingsMeasureGroup
 {
 	public long GrpId { get; set; }
 	public int Attrib { get; set; }

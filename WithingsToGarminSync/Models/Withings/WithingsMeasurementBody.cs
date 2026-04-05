@@ -1,6 +1,6 @@
 ﻿namespace WithingsToGarminSync.Models.Withings;
 
-class WithingsMeasurementBody
+public class WithingsMeasurementBody
 {
 	public long UpdateTime { get; set; }
 	public string Timezone { get; set; } = "";
