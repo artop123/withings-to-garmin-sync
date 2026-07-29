@@ -6,8 +6,7 @@ namespace WithingsToGarminSync.Services;
 
 public class WithingsHttpClient : IWithingsHttpClient
 {
-	private const string BaseUrl = "https://wbsapi.withings.net/v2/";
-	private const string MeasureUrl = "https://wbsapi.withings.net/measure";
+	internal const string ApiBaseUrl = "https://wbsapi.withings.net/";
 
 	public WithingsHttpResult<WithingsAccessTokenResponse> RequestAccessToken(
 		string clientId,
@@ -15,8 +14,8 @@ public class WithingsHttpClient : IWithingsHttpClient
 		string authCode,
 		string redirectUri)
 	{
-		var client = new RestClient(BaseUrl);
-		var request = new RestRequest("oauth2", Method.Post);
+		var client = new RestClient(ApiBaseUrl);
+		var request = new RestRequest("v2/oauth2", Method.Post);
 		request.AddParameter("action", "requesttoken");
 		request.AddParameter("grant_type", "authorization_code");
 		request.AddParameter("client_id", clientId);
@@ -39,8 +38,8 @@ public class WithingsHttpClient : IWithingsHttpClient
 		string refreshToken,
 		string redirectUri)
 	{
-		var client = new RestClient(BaseUrl);
-		var request = new RestRequest("oauth2", Method.Post);
+		var client = new RestClient(ApiBaseUrl);
+		var request = new RestRequest("v2/oauth2", Method.Post);
 		request.AddParameter("action", "requesttoken");
 		request.AddParameter("grant_type", "refresh_token");
 		request.AddParameter("client_id", clientId);
@@ -59,10 +58,8 @@ public class WithingsHttpClient : IWithingsHttpClient
 
 	public WithingsHttpResult<WithingsMeasurementResponse> FetchMeasurements(string? accessToken)
 	{
-		var client = new RestClient(MeasureUrl);
-		var request = new RestRequest("v2/measure", Method.Get);
-		request.AddParameter("action", "getmeas");
-		request.AddParameter("access_token", accessToken);
+		var client = new RestClient(ApiBaseUrl);
+		var request = CreateMeasurementRequest(accessToken);
 
 		var response = client.Execute<WithingsMeasurementResponse>(request);
 		return new WithingsHttpResult<WithingsMeasurementResponse>
@@ -71,5 +68,13 @@ public class WithingsHttpClient : IWithingsHttpClient
 			Data = response.Data,
 			Content = response.Content
 		};
+	}
+
+	internal static RestRequest CreateMeasurementRequest(string? accessToken)
+	{
+		var request = new RestRequest("measure", Method.Post);
+		request.AddParameter("action", "getmeas");
+		request.AddHeader("Authorization", $"Bearer {accessToken}");
+		return request;
 	}
 }

@@ -128,6 +128,12 @@ public class Application
 
 		var currentToken = GetWithingsToken();
 
+		// Withings rotates refresh tokens. Persist the current token before any
+		// downstream call so a later failure cannot leave an invalid token on disk.
+		_runData ??= new RunData();
+		_runData.Token = currentToken;
+		_fileService.Save(_dataJsonFile, _runData);
+
 		var data = _withingsService.FetchWeightAndFatData(currentToken.Access_token);
 
 		if (data == null || data.Count == 0)

@@ -22,12 +22,7 @@ public class SerilogService : ILogService
 	{
 		if (exception != null && !string.IsNullOrWhiteSpace(exception.Message))
 		{
-			Serilog.Log.Error(exception.Message);
-
-			if (exception.InnerException != null)
-			{
-				Serilog.Log.Error(exception.InnerException.Message);
-			}
+			Serilog.Log.Error(exception, "{ExceptionMessage}", exception.Message);
 		}
 	}
 

@@ -20,6 +20,18 @@ AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
 	}
 };
 
-await new Application(logger)
-	.Start(settings)
-	.Run();
+try
+{
+	await new Application(logger)
+		.Start(settings)
+		.Run();
+}
+catch (Exception exception)
+{
+	logger.Log(exception);
+	throw;
+}
+finally
+{
+	await Serilog.Log.CloseAndFlushAsync();
+}
