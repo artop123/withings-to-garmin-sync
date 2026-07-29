@@ -102,6 +102,17 @@ public class ApplicationTests
 		fileService.Verify(
 			x => x.SaveRunData("data/data.json", It.Is<MeasurementData>(m => m.Weight == 80.1), existingToken),
 			Times.Once);
+		logService.Verify(x => x.Log(
+			"Loaded weight from Withings ({Weight:0.00} kg, {MeasurementDate:O})",
+			It.Is<object?[]>(values =>
+				values.Length == 2
+				&& Equals(values[0], 80.1)
+				&& Equals(values[1], latestDate))), Times.Once);
+		logService.Verify(x => x.Log(
+			"Updating data to Garmin: {ShouldUpdate}",
+			It.Is<object?[]>(values =>
+				values.Length == 1
+				&& Equals(values[0], true))), Times.Once);
 	}
 
 	[Fact]

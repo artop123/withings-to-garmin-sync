@@ -13,21 +13,18 @@ public class SerilogService : ILogService
 			.CreateLogger();
 	}
 
-	public void Log(string message)
+	public void Log(string messageTemplate, params object?[] propertyValues)
 	{
-		Serilog.Log.Information(message);
+		Serilog.Log.Information(messageTemplate, propertyValues);
 	}
 
-	public void Log(Exception exception)
+	public void Error(string messageTemplate, params object?[] propertyValues)
 	{
-		if (exception != null && !string.IsNullOrWhiteSpace(exception.Message))
-		{
-			Serilog.Log.Error(exception, "{ExceptionMessage}", exception.Message);
-		}
+		Serilog.Log.Error(messageTemplate, propertyValues);
 	}
 
-	public void Error(string message)
+	public void Error(Exception exception, string messageTemplate, params object?[] propertyValues)
 	{
-		Serilog.Log.Error(message);
+		Serilog.Log.Error(exception, messageTemplate, propertyValues);
 	}
 }

@@ -16,7 +16,7 @@ AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
 	if (eventArgs.ExceptionObject is Exception exception
 		&& !string.IsNullOrWhiteSpace(exception.Message))
 	{
-		logger.Log(exception);
+		logger.Error(exception, "Unhandled exception");
 	}
 };
 
@@ -28,7 +28,7 @@ try
 }
 catch (Exception exception)
 {
-	logger.Log(exception);
+	logger.Error(exception, "Unhandled exception");
 	throw;
 }
 finally
