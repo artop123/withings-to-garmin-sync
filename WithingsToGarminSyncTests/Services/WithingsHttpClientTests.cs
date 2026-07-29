@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using RestSharp;
 using WithingsToGarminSync.Services;
 using Xunit;
