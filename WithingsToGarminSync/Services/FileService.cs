@@ -37,18 +37,18 @@ public class FileService : IFileService
 		var json = JsonSerializer.Serialize(model);
 		File.WriteAllText(path, json);
 
-		_logService?.Log($"File {path} saved");
+		_logService.Log("File {FilePath} saved", path);
 	}
 
 	public T? Load<T>(string? path = null)
 	{
 		if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
 		{
-			_logService?.Error($"File {path} not found");
+			_logService.Error("File {FilePath} not found", path);
 			return default;
 		}
 
-		_logService?.Log($"Loading {typeof(T)} from {path}");
+		_logService.Log("Loading {DataType} from {FilePath}", typeof(T).FullName, path);
 
 		try
 		{
@@ -58,7 +58,7 @@ public class FileService : IFileService
 
 		catch (Exception ex)
 		{
-			_logService?.Log($"Failed to load the file: {ex.Message}");
+			_logService.Error(ex, "Failed to load file {FilePath}", path);
 			return default;
 		}
 	}
@@ -74,13 +74,13 @@ public class FileService : IFileService
 			var json = JsonSerializer.Serialize(model);
 			File.WriteAllText(path, json);
 
-			_logService?.Log($"File {path} saved");
+			_logService.Log("File {FilePath} saved", path);
 			return true;
 		}
 
 		catch (Exception ex)
 		{
-			_logService?.Log($"Failed to load the file: {ex.Message}");
+			_logService.Error(ex, "Failed to save file {FilePath}", path);
 			return false;
 		}
 	}

@@ -69,26 +69,26 @@ public class Application
 
 		if (_withingsService.IsTokenUsable(token))
 		{
-			_logService?.Log($"Using existing Withings token until {token!.ExpiresAtUtc:O}");
+			_logService.Log("Using existing Withings token until {TokenExpiresAtUtc:O}", token!.ExpiresAtUtc);
 			return token!;
 		}
 
 		if (token != null)
 		{
-			_logService?.Log("Refreshing Withings token.");
+			_logService.Log("Refreshing Withings token.");
 
 			var refreshedToken = _withingsService.GetAccessTokenByRefreshToken(token.Refresh_token);
 			if (_withingsService.IsTokenUsable(refreshedToken))
 			{
-				_logService?.Log("Withings token refreshed.");
+				_logService.Log("Withings token refreshed.");
 				return refreshedToken!;
 			}
 
-			_logService?.Error("Withings refresh token is no longer valid. Re-authorization required.");
+			_logService.Error("Withings refresh token is no longer valid. Re-authorization required.");
 		}
 
 		token = RequestNewWithingsToken();
-		_logService?.Log("Token received..");
+		_logService.Log("Token received.");
 		return token!;
 	}
 
@@ -104,7 +104,7 @@ public class Application
 			throw new Exception("Withings token request failed in non-interactive mode. Run the app once interactively to authorize Withings.");
 		}
 
-		_logService?.Log("Requesting a new Withings authorization from the user.");
+		_logService.Log("Requesting a new Withings authorization from the user.");
 		var code = _withingsService.GetAccessCode();
 		var token = _withingsService.GetAccessToken(code);
 
@@ -128,6 +128,12 @@ public class Application
 
 		var currentToken = GetWithingsToken();
 
+		// Withings rotates refresh tokens. Persist the current token before any
+		// downstream call so a later failure cannot leave an invalid token on disk.
+		_runData ??= new RunData();
+		_runData.Token = currentToken;
+		_fileService.Save(_dataJsonFile, _runData);
+
 		var data = _withingsService.FetchWeightAndFatData(currentToken.Access_token);
 
 		if (data == null || data.Count == 0)
@@ -143,13 +149,16 @@ public class Application
 			|| _runData.LastWeightDate == null
 			|| _runData.LastWeightDate < latest.Date;
 
-		_logService?.Log($"Loaded weight from Withings ({latest.Weight:0.00} kg, {latest.Date})");
-		_logService?.Log($"Updating data to Garmin: {shouldUpdate}");
+		_logService.Log(
+			"Loaded weight from Withings ({Weight:0.00} kg, {MeasurementDate:O})",
+			latest.Weight,
+			latest.Date);
+		_logService.Log("Updating data to Garmin: {ShouldUpdate}", shouldUpdate);
 
 		if (shouldUpdate)
 		{
 			await _garminService.UploadWeight(latest.Weight);
-			_logService?.Log("Weight uploaded to Garmin");
+			_logService.Log("Weight uploaded to Garmin");
 		}
 
 		_fileService.Save(_withingsJsonFile, data);

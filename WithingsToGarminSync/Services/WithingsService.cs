@@ -62,7 +62,9 @@ public class WithingsService : IWithingsService
 			|| string.IsNullOrWhiteSpace(response.Data.Body.Access_token)
 			|| string.IsNullOrWhiteSpace(response.Data.Body.Refresh_token))
 		{
-			_logService?.Error($"Failed to exchange Withings authorization code for token: {response.Content}");
+			_logService.Error(
+				"Failed to exchange Withings authorization code for token: {ResponseContent}",
+				response.Content);
 			return null;
 		}
 
@@ -74,7 +76,7 @@ public class WithingsService : IWithingsService
 	{
 		if (string.IsNullOrWhiteSpace(refreshToken))
 		{
-			_logService?.Error("Withings refresh token is missing.");
+			_logService.Error("Withings refresh token is missing.");
 			return null;
 		}
 
@@ -85,7 +87,7 @@ public class WithingsService : IWithingsService
 			|| string.IsNullOrWhiteSpace(response.Data.Body.Access_token)
 			|| string.IsNullOrWhiteSpace(response.Data.Body.Refresh_token))
 		{
-			_logService?.Error($"Failed to refresh Withings token: {response.Content}");
+			_logService.Error("Failed to refresh Withings token: {ResponseContent}", response.Content);
 			return null;
 		}
 
@@ -127,7 +129,7 @@ public class WithingsService : IWithingsService
 			|| response.Data.Status != 0
 			|| response.Data?.Body?.Measuregrps == null)
 		{
-			_logService?.Error($"Unable to load data from Withings: {response.Content}");
+			_logService.Error("Unable to load data from Withings: {ResponseContent}", response.Content);
 			return result;
 		}
 

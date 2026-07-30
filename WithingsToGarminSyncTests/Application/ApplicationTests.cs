@@ -60,6 +60,11 @@ public class ApplicationTests
 		withingsService.Verify(x => x.GetAccessTokenByRefreshToken(existingToken.Refresh_token), Times.Once);
 		withingsService.Verify(x => x.GetAccessCode(), Times.Never);
 		withingsService.Verify(x => x.FetchWeightAndFatData(refreshedToken.Access_token), Times.Once);
+		fileService.Verify(
+			x => x.Save(
+				"data/data.json",
+				It.Is<RunData>(data => ReferenceEquals(data.Token, refreshedToken))),
+			Times.Once);
 	}
 
 	[Fact]
@@ -97,6 +102,17 @@ public class ApplicationTests
 		fileService.Verify(
 			x => x.SaveRunData("data/data.json", It.Is<MeasurementData>(m => m.Weight == 80.1), existingToken),
 			Times.Once);
+		logService.Verify(x => x.Log(
+			"Loaded weight from Withings ({Weight:0.00} kg, {MeasurementDate:O})",
+			It.Is<object?[]>(values =>
+				values.Length == 2
+				&& Equals(values[0], 80.1)
+				&& Equals(values[1], latestDate))), Times.Once);
+		logService.Verify(x => x.Log(
+			"Updating data to Garmin: {ShouldUpdate}",
+			It.Is<object?[]>(values =>
+				values.Length == 1
+				&& Equals(values[0], true))), Times.Once);
 	}
 
 	[Fact]
@@ -146,6 +162,48 @@ public class ApplicationTests
 		var act = async () => await app.Start(TestDataFactory.CreateSettings()).Run();
 
 		await act.Should().ThrowAsync<Exception>().WithMessage("Invalid data from Withings");
+	}
+
+	[Fact]
+	public async Task Run_ShouldPersistCurrentToken_BeforeFetchingMeasurements()
+	{
+		var existingToken = TestDataFactory.CreateToken("expired-token", "old-refresh-token");
+		var refreshedToken = TestDataFactory.CreateToken("refreshed-token", "rotated-refresh-token");
+		var runData = new RunData
+		{
+			Token = existingToken,
+			LastWeight = 80.5,
+			LastWeightDate = DateTime.UtcNow.AddDays(-1)
+		};
+
+		var fileService = ServiceMockFactory.CreateFileServiceMock(runData);
+		var withingsService = ServiceMockFactory.CreateWithingsServiceMock();
+		var garminService = ServiceMockFactory.CreateGarminServiceMock();
+		var logService = ServiceMockFactory.CreateLogServiceMock();
+		var sequence = new MockSequence();
+
+		withingsService.InSequence(sequence).Setup(x => x.IsTokenUsable(existingToken)).Returns(false);
+		withingsService.InSequence(sequence).Setup(x => x.GetAccessTokenByRefreshToken(existingToken.Refresh_token)).Returns(refreshedToken);
+		withingsService.InSequence(sequence).Setup(x => x.IsTokenUsable(refreshedToken)).Returns(true);
+		fileService.InSequence(sequence).Setup(x => x.Save(
+			"data/data.json",
+			It.Is<RunData>(data =>
+				ReferenceEquals(data.Token, refreshedToken)
+				&& data.LastWeight == 80.5
+				&& data.LastWeightDate == runData.LastWeightDate))).Returns(true);
+		withingsService.InSequence(sequence).Setup(x => x.FetchWeightAndFatData(refreshedToken.Access_token)).Returns([]);
+
+		var app = CreateApp(logService, fileService, withingsService, garminService);
+		var act = async () => await app.Start(TestDataFactory.CreateSettings()).Run();
+
+		await act.Should().ThrowAsync<Exception>().WithMessage("Invalid data from Withings");
+		fileService.Verify(x => x.Save(
+			"data/data.json",
+			It.Is<RunData>(data =>
+				ReferenceEquals(data.Token, refreshedToken)
+				&& data.LastWeight == 80.5
+				&& data.LastWeightDate == runData.LastWeightDate)), Times.Once);
+		withingsService.VerifyAll();
 	}
 
 	private static WithingsToGarminSync.Application CreateApp(

@@ -36,9 +36,12 @@ internal static class ServiceMockFactory
 	public static Mock<ILogService> CreateLogServiceMock()
 	{
 		var mock = new Mock<ILogService>();
-		mock.Setup(x => x.Log(It.IsAny<string>()));
-		mock.Setup(x => x.Error(It.IsAny<string>()));
-		mock.Setup(x => x.Log(It.IsAny<Exception>()));
+		mock.Setup(x => x.Log(It.IsAny<string>(), It.IsAny<object?[]>()));
+		mock.Setup(x => x.Error(It.IsAny<string>(), It.IsAny<object?[]>()));
+		mock.Setup(x => x.Error(
+			It.IsAny<Exception>(),
+			It.IsAny<string>(),
+			It.IsAny<object?[]>()));
 		return mock;
 	}
 

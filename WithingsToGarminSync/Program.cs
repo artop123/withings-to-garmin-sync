@@ -16,10 +16,22 @@ AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
 	if (eventArgs.ExceptionObject is Exception exception
 		&& !string.IsNullOrWhiteSpace(exception.Message))
 	{
-		logger.Log(exception);
+		logger.Error(exception, "Unhandled exception");
 	}
 };
 
-await new Application(logger)
-	.Start(settings)
-	.Run();
+try
+{
+	await new Application(logger)
+		.Start(settings)
+		.Run();
+}
+catch (Exception exception)
+{
+	logger.Error(exception, "Unhandled exception");
+	throw;
+}
+finally
+{
+	await Serilog.Log.CloseAndFlushAsync();
+}

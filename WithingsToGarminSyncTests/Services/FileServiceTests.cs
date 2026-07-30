@@ -38,6 +38,11 @@ public class FileServiceTests
 			loaded.Should().NotBeNull();
 			loaded!.Name.Should().Be("Alice");
 			loaded.Value.Should().Be(42);
+			logger.Verify(x => x.Log(
+				"File {FilePath} saved",
+				It.Is<object?[]>(values =>
+					values.Length == 1
+					&& Equals(values[0], path))), Times.Once);
 		}
 		finally
 		{
@@ -55,7 +60,11 @@ public class FileServiceTests
 		var result = service.Load<TestModel>(path);
 
 		result.Should().BeNull();
-		logger.Verify(x => x.Error(It.Is<string>(s => s.Contains("not found"))), Times.Once);
+		logger.Verify(x => x.Error(
+			"File {FilePath} not found",
+			It.Is<object?[]>(values =>
+				values.Length == 1
+				&& Equals(values[0], path))), Times.Once);
 	}
 
 	[Fact]
@@ -77,7 +86,12 @@ public class FileServiceTests
 		var result = service.Load<TestModel>(GetAssetPath("invalid.json"));
 
 		result.Should().BeNull();
-		logger.Verify(x => x.Log(It.Is<string>(s => s.StartsWith("Failed to load the file:"))), Times.Once);
+		logger.Verify(x => x.Error(
+			It.Is<Exception>(exception => exception is JsonException),
+			"Failed to load file {FilePath}",
+			It.Is<object?[]>(values =>
+				values.Length == 1
+				&& Equals(values[0], GetAssetPath("invalid.json")))), Times.Once);
 	}
 
 	[Fact]
